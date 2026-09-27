@@ -1,0 +1,20 @@
+function checkNumber(number) {
+
+  let sign = 'ноль';
+  if (number > 0) {
+    sign = 'положительное';
+  } else if (number < 0) {
+    sign = 'отрицательное';
+  }
+
+  let parity = 'нечётное';
+  if (number % 2 === 0) {
+    parity = 'чётное';
+  }
+
+  return 'Число ' + number + ': ' + sign + ', ' + parity + '.';
+}
+
+console.log(checkNumber(5));   
+console.log(checkNumber(-8)); 
+console.log(checkNumber(0));   
