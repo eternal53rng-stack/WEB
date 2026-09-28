@@ -1,0 +1,17 @@
+body {
+    padding: 20px;
+}
+
+#root-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; 
+    padding: 20px;
+    border: 2px dashed #ccc;
+}
+
+.dynamic-box {
+    background-color: #ff6b6b; 
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
