@@ -1,9 +1,0 @@
-let s = (Math.random() * 10 + '').split('.')[0];
-const SECRET = +s + 1;
-
-function guessNumber(n) {
-  if (n === SECRET) return 'Угадал!';
-  return n < SECRET ? 'Загаданное число больше.' : 'Загаданное число меньше.';
-}
-
-console.log(guessNumber(8));
