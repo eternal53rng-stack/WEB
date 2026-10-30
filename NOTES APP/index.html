@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Notes App</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="app" id="app">
+        <section class="sidebar">
+            <div class="sidebar__icon" id="hide"></div>
+            <div class="sidebar__icon"></div>
+        </section>
+        
+        <section class="navbar">
+            <div class="navbar__controls">
+                <div>Сортировка по дате</div>
+                <input class="navbar__controls-input" type="text" placeholder="Поиск заметок">
+                <button class="navbar__controls-btn" id="create-btn">+</button>
+            </div>
+            <div class="navbar__scroll">
+                <div class="navbar__month" id="navbar">
+                </div>
+            </div>
+        </section>
+        
+        <section class="editor">
+            <div class="editor__navbar">
+                <div class="editor__navbar-left">
+                    <button class="editor__navbar-arrow">&lt;</button>
+                    <button class="editor__navbar-arrow">&gt;</button>
+                </div>
+                <div class="editor__navbar-right">
+                    <button class="editor__navbar-btn">Del</button>
+                </div>
+            </div>
+            <div class="editor__tools">tools</div>
+            <div class="editor__content">content</div>
+        </section>
+    </div>
+
+    <div class="shadow" id="shadow" style="display: none;">
+        <form class="form-create">
+            <input class="form-create__title" id="form-title" type="text" placeholder="Заголовок">
+            <textarea class="form-create__description" id="form-description" placeholder="Контент"></textarea>
+            <button class="form-create__btn" id="btn-save">Сохранить</button>
+            <button class="form-create__close-btn" id="btn-close">x</button>
+        </form>
+    </div>
+
+    <script src="./script.js"></script>
+</body>
+</html>
