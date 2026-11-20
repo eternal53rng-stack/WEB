@@ -1,14 +1,28 @@
 import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
+import { getNotes, createNote } from './db.js'
+
+const saveTimers = {}
 
 const editor = new Editor({
     element: document.querySelector('#editor__content'),
     extensions: [StarterKit],
     content: '',
-    onUpdate: ()=>{
-        currentNote.desc = editor.getJSON()
-        localStorage.setItem(NOTES_KEY, JSON.stringify(notes))
-    }
+
+    onUpdate: () => {
+    if (!currentNote || !currentNote.id) return
+
+    currentNote.description = editor.getJSON()
+
+    const note = currentNote
+    clearTimeout(saveTimers[note.id])
+    saveTimers[note.id] = setTimeout(() => {
+        fetch(`http://127.0.0.1:3000/notes/${note.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ description: note.description })
+        })
+    }, 500)
+}
 })
 
 const buttons = document.querySelectorAll('[data-tiptap-button]')
@@ -91,11 +105,13 @@ const title = document.getElementById('form-create__title')
 const desc = document.getElementById('form-create__desc')
 const date = new Date().toISOString().slice(0, 10)
 const NOTES_KEY = 'notes'
-
+const backBtn = document.getElementById('back-btn')
+const nextBtn = document.getElementById('next-btn')
 
 
 iconHide.addEventListener('click', () => {
     main.classList.toggle('main_navbar-hidden')
+    iconHide.classList.toggle('rotated')
 })
 
 createBtn.addEventListener('click', () => {
@@ -109,26 +125,40 @@ closeBtn.addEventListener('click', (e) => {
     modal.style.display = 'none'
 })
 
-saveBtn.addEventListener('click', (e) => {
+saveBtn.addEventListener('click', async (e) => {
     e.preventDefault()
-    const titleValue = title.value || 'Новая заметка'
-    const descValue = desc.value
-    const dateValue = date
-
-    notes.unshift(
-        {
-            title: titleValue,
-            desc: descValue,
-            date: dateValue
+    const note = {
+        title: title.value || "Новая заметка",
+        description: {
+            content: [{
+                type: 'paragraph',
+                content: [{
+                    text: desc.value,
+                    type: 'text'
+                }]
+            }],
+            type: 'doc'
+        },
+        date: date
+    }
+    try {
+        const res = await createNote(note)
+        if (res.status === false) {
+            console.log("что-то пошло не так при сохранении")
+            return
         }
-    )
+        notes.unshift(res.data)
+        currentNote = res.data
+        editor.commands.setContent(currentNote.description)
+    } catch (e) {
+        console.log(e)
+    }
     modal.style.display = 'none'
-    localStorage.setItem('notes', JSON.stringify(notes))
     renderNavbar()
 })
 
 
-const notes = initDB()
+const notes = await initDB()
 
 const days = [
     'вск',
@@ -139,11 +169,6 @@ const days = [
     'пт',
     'сб'
 ]
-
-function initDB() {
-    const items = localStorage.getItem(NOTES_KEY)
-    return JSON.parse(items || '[]')
-}
 
 function objToHTML(obj) {
     const mainEl = document.createElement('div')
@@ -175,7 +200,6 @@ function objToHTML(obj) {
     title.innerHTML = `<b>${obj.title}</b>`
 
     const description = document.createElement('div')
-    //description.innerHTML = `${obj.desc.slice(0, 20)}...`
 
     descEl.appendChild(title)
     descEl.appendChild(description)
@@ -186,8 +210,19 @@ function objToHTML(obj) {
     return mainEl
 }
 
-let currentNote = notes[0]
-editor.commands.setContent(currentNote.desc)
+let currentNote = notes[0] || null
+if (currentNote) {
+    editor.commands.setContent(currentNote.description)
+}
+
+async function initDB() {
+    try {
+        return await getNotes()
+    } catch (e) {
+        console.log(e)
+        return []
+    }
+}
 
 const navbarEl = document.getElementById('navbar__content')
 
@@ -200,11 +235,26 @@ function renderNavbar() {
         }
         noteHTML.addEventListener('click', () => {
             currentNote = note
-            editor.commands.setContent(currentNote.desc)
+            editor.commands.setContent(currentNote.description)
             renderNavbar()
         })
         navbarEl.appendChild(noteHTML)
     }
 }
+
+function changeNote(index) {
+    if (index < 0 || index >= notes.length) return
+    currentNote = notes[index]
+    editor.commands.setContent(currentNote.description)
+    renderNavbar()
+}
+
+backBtn.addEventListener('click', () => {
+    changeNote(notes.indexOf(currentNote) - 1)
+})
+
+nextBtn.addEventListener('click', () => {
+    changeNote(notes.indexOf(currentNote) + 1)
+})
 
 renderNavbar()

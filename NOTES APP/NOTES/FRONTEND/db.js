@@ -1,13 +1,24 @@
 const SRV = 'http://127.0.0.1:3000'
 
-async function getNotes(){
-    const result = await fetch(`${SRV}/notes`,{ method: 'GET' })
+export async function getNotes() {
+    const result = await fetch(`${SRV}/notes`, { method: 'GET' })
 
-    const chunks = [];
-    for await (const chunk of result.body) {
-        chunks.push(Buffer.from(chunk));
-    }
-    const data = JSON.parse(Buffer.concat(chunks).toString('utf-8'));
-    console.log(data)
+    const data = await result.json()
+    return data
 }
-getNotes()
+
+export async function createNote(note) {
+    const result = await fetch(`${SRV}/notes`, { 
+        method: 'POST',
+        body: JSON.stringify(note)
+    })
+    const data = await result.json()
+    return data
+}
+
+export async function updateNote(id, description) {
+    await fetch(`${SRV}/notes/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ description })
+    })
+}

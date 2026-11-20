@@ -28,6 +28,11 @@
     background-color: black;
     height: 30px;
     width: 30px;
+    transition: transform 0.3s ease;
+}
+
+.sidebar__icon.rotated {
+    transform:  rotate(90deg);
 }
 
 .sidebar__icon:hover {
